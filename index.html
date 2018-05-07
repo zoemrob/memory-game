@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Memory-Game!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="css/main.css" rel="stylesheet" type="text/css">
+</head>
+    <body>
+        <header class="header-dock">
+            <div class="controls" id="js-controls">
+                <h1 class="game-title control-item" id="js-title">Zoe's Memory Game</h1>
+                <div class="control-item control-btn" id="js-save">
+                    <button class="save-btn" type="button" id="js-save-load-btn">Load</button>
+                </div>
+                <div class="control-item control-btn" id="js-start-restart">
+                    <button class="start-btn" type="button" id="js-start-restart-btn">Start</button>
+                </div>
+            </div>
+            <div class="stats-dock">
+                <div class="timer" id="js-timer-div">
+                    <p id="js-timer"></p>
+                </div>
+                <div class="stars" id="js-stars">
+                    <p id="js-stars">&#9734; &#9733; &#9733;</p>
+                </div>
+                <div class="move-counter" id="js-move-counter">
+                    <p>Moves: <span id="js-moves"></span></p>
+                </div>
+                <div class="star-avg" id="js-star-avg">
+                    <p id="js-avg-stars">&#9734; &#9734; &#9734;</p>
+                    <!--To be added, checks localStorage for star history, averages stars-->
+                    <!--add a "greyed" class to css, if no history is found, toggle "greyed"-->
+                </div>
+            </div>
+        </header>
+        <main>
+            <div class="card-container" id="js-card-container">
+                <!--Hidden by default, when start is clicked, make visible-->
+            </div>
+        </main>
+        <script src="js/game.js" type="application/x-javascript"></script>
+    </body>
+</html>
