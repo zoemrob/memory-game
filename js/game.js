@@ -1,4 +1,6 @@
 "use strict";
+const emptyStar = '&#9734;';
+const fullStar = '&#9733;';
 
 function load () {
     /**
@@ -26,22 +28,43 @@ function load () {
         board = new Board();
 
     useLocalStorage ? getAvgStars() : hideAvgStars();
+
+    startRestartButton.addEventListener('click', () => {
+        board.resetBoard();
+        console.log(board.setNewBoardInfo());
+    });
 }
 
 function getAvgStars() {
     const starHistory = localStorage.getItem('starHistory');
-    if (!starHistory.length || starHistory === undefined) {
+    if (starHistory === null || starHistory === undefined || !starHistory.length) {
         // if starHistory is empty or if it does not exist
         hideAvgStars();
+    } else {
+        let total = 0;
+        stars.forEach(star => {
+            total += star;
+        });
     }
-    let total = 0;
-    stars.forEach(star => {
-        total += star;
-    });
 }
 
 function hideAvgStars() {
     // TODO hide average stars
+}
+
+function camelCaseToHyphen (str) {
+    return str.replace(/([a-zA-Z])(?=[A-Z])/g, "$1-").toLowerCase();
+}
+
+function hyphenCaseToCamel (str) {
+    return str.replace(/-([a-z])/g, g => {
+        return g[1].toUpperCase();
+    });
+}
+
+function camelCaseToNormal (str) {
+    let init = str.replace(/([A-Z])/g, " $1");
+    return init.charAt(0).toUpperCase() + init.slice(1);
 }
 
 document.addEventListener('DOMContentLoaded', load);

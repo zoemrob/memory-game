@@ -18,17 +18,17 @@
                 </div>
             </div>
             <div class="stats-dock">
-                <div class="timer" id="js-timer-div">
-                    <p id="js-timer"></p>
+                <div class="timer stats-item" id="js-timer-div">
+                    <p id="js-timer">Time:</p>
                 </div>
-                <div class="stars" id="js-stars">
+                <div class="stars stats-item" id="js-stars">
                     <p id="js-stars">&#9734; &#9733; &#9733;</p>
                 </div>
-                <div class="move-counter" id="js-move-counter">
+                <div class="move-counter stats-item" id="js-move-counter">
                     <p>Moves: <span id="js-moves"></span></p>
                 </div>
-                <div class="star-avg" id="js-star-avg">
-                    <p id="js-avg-stars">&#9734; &#9734; &#9734;</p>
+                <div class="star-avg stats-item" id="js-star-avg">
+                    <p id="js-avg-stars">Average Stars: &#9734; &#9734; &#9734;</p>
                     <!--To be added, checks localStorage for star history, averages stars-->
                     <!--add a "greyed" class to css, if no history is found, toggle "greyed"-->
                 </div>
@@ -39,6 +39,7 @@
                 <!--Hidden by default, when start is clicked, make visible-->
             </div>
         </main>
+        <script src="js/Board.js" type="application/x-javascript"></script>
         <script src="js/game.js" type="application/x-javascript"></script>
     </body>
 </html>
