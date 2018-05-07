@@ -28,6 +28,7 @@ function load () {
         cardContainer = document.getElementById('js-card-container'),
         cardSetName = document.getElementById('js-card-set-name'),
         board = new Board();
+    let boardSet = false;
 
     useLocalStorage ? getAvgStars() : hideAvgStars();
 
@@ -38,7 +39,24 @@ function load () {
         startRestartButton.innerText = 'Restart';
         saveLoadButton.innerText = 'Save';
         cardSetName.innerText = currentBoard[0];
-        cardContainer.appendChild(board.makeBoardElements());
+        if (!boardSet) {
+            cardContainer.appendChild(board.makeBoardElements());
+            boardSet = true;
+        } else {
+            cardContainer.innerHTML = '';
+            cardContainer.appendChild(board.makeBoardElements());
+        }
+
+
+        cardContainer.addEventListener('click', e => {
+            if (e.target.nodeName === 'H3') {
+                let id = e.target.parentElement.getAttribute('id');
+                console.log(id);
+            } else if (e.target.nodeName === 'DIV') {
+                let id = e.target.getAttribute('id');
+                id !== 'js-card-container' ? console.log(id): e.stopPropagation();
+            }
+        });
     });
 }
 

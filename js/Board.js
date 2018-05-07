@@ -132,6 +132,7 @@ Board.prototype.createCard = function (cardName, cardId, matched = false) {
         name = document.createElement('h3');
     cardDiv.setAttribute('id', cardId);
     cardDiv.appendChild(name);
+    cardDiv.classList.add('card');
     matched ? cardDiv.classList.toggle('matched'): '';
     name.innerText = cardName;
     return cardDiv;
