@@ -1,6 +1,7 @@
 "use strict";
 const emptyStar = '&#9734;';
 const fullStar = '&#9733;';
+let currentBoard;
 
 function load () {
     /**
@@ -24,14 +25,20 @@ function load () {
         moveCounter = document.getElementById('js-move-counter'),
         avgStars = document.getElementById('js-star-avg'),
         controls = document.getElementById('js-controls'),
-        cardContainer = document.getElementById('card-container'),
+        cardContainer = document.getElementById('js-card-container'),
+        cardSetName = document.getElementById('js-card-set-name'),
         board = new Board();
 
     useLocalStorage ? getAvgStars() : hideAvgStars();
 
     startRestartButton.addEventListener('click', () => {
         board.resetBoard();
-        console.log(board.setNewBoardInfo());
+        currentBoard = board.setNewBoardInfo();
+        console.log(currentBoard);
+        startRestartButton.innerText = 'Restart';
+        saveLoadButton.innerText = 'Save';
+        cardSetName.innerText = currentBoard[0];
+        cardContainer.appendChild(board.makeBoardElements());
     });
 }
 
@@ -65,6 +72,10 @@ function hyphenCaseToCamel (str) {
 function camelCaseToNormal (str) {
     let init = str.replace(/([A-Z])/g, " $1");
     return init.charAt(0).toUpperCase() + init.slice(1);
+}
+
+function shuffle(elements) {
+    // TODO implement shuffle method
 }
 
 document.addEventListener('DOMContentLoaded', load);

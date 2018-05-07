@@ -51,3 +51,12 @@ button {
     display: inline-block;
     margin: 0 1em 0 1em;
 }
+
+/**
+    Card container
+ */
+
+.card-set-name {
+    text-decoration: underline;
+    text-align: center;
+}

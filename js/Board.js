@@ -102,8 +102,37 @@ Board.prototype.setCardSet = function (optSet = null) {
 
 Board.prototype.makeBoardElements = function () {
     // TODO implement a way to append elements to document fragment
+    const cardBoard = document.createDocumentFragment();
+    let cards = this.boardInfo.slice(1),
+        elements = [];
+
+    cards.forEach(cardData => {
+        const matchedCheck = cardData['matched'] ? 'matched' : false;
+        const card1 = this.createCard(cardData['cardNameText'], cardData['id1'], matchedCheck);
+        const card2 = this.createCard(cardData['cardNameText'], cardData['id2'], matchedCheck);
+        elements.push(card1);
+        elements.push(card2);
+    });
+
+    console.log(elements);
+    console.log(shuffle(elements));
+
+    elements.forEach(element => {
+        cardBoard.appendChild(element);
+    });
+    return cardBoard;
 };
 
 Board.prototype.resetBoard = function () {
     this.boardInfo = [];
+};
+
+Board.prototype.createCard = function (cardName, cardId, matched = false) {
+    const cardDiv = document.createElement('div'),
+        name = document.createElement('h3');
+    cardDiv.setAttribute('id', cardId);
+    cardDiv.appendChild(name);
+    matched ? cardDiv.classList.toggle('matched'): '';
+    name.innerText = cardName;
+    return cardDiv;
 };
