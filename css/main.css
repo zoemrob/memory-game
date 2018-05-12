@@ -73,3 +73,15 @@ button {
     text-decoration: underline;
     text-align: center;
 }
+
+.matched {
+    background-color: red;
+}
+
+.open {
+    background-color: green;
+}
+
+.hidden {
+    display: none;
+}

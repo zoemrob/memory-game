@@ -22,7 +22,6 @@ function load () {
     const saveLoadButton = document.getElementById('js-save-load-btn'),
         startRestartButton = document.getElementById('js-start-restart-btn'),
         timer = document.getElementById('js-timer'),
-        moveCounter = document.getElementById('js-move-counter'),
         avgStars = document.getElementById('js-star-avg'),
         controls = document.getElementById('js-controls'),
         cardContainer = document.getElementById('js-card-container'),
@@ -30,12 +29,50 @@ function load () {
         board = new Board();
     let boardSet = false;
 
-    useLocalStorage ? getAvgStars() : hideAvgStars();
+    if (useLocalStorage) {
+        getAvgStars();
+    } else {
+        avgStars.classList.toggle('hidden');
+        saveLoadButton.classList.toggle('hidden');
+    }
 
-    startRestartButton.addEventListener('click', () => {
+    startRestartButton.addEventListener('click', standardStart);
+
+    saveLoadButton.addEventListener('click', loadPrevGame);
+
+    function loadPrevGame() {
+        const lastGame = JSON.parse(localStorage.getItem('lastGame'));
+        if (lastGame) {
+            sharedSetup(board.setLastBoardInfo(lastGame));
+        } else {
+            window.alert('There is no saved game.');
+        }
+    }
+
+    function clickHandler (e) {
+        let card,
+            id;
+        id = board.getCardId(e);
+        if (id) {
+            card = board.handleClicks(id);
+            console.log(card);
+        } else { return false; }
+        if (card) {
+            board.updateBoard(card)
+        } else { return false; }
+    }
+
+    function standardStart () {
+        // reset board state, remove event listener
         board.resetBoard();
-        currentBoard = board.setNewBoardInfo();
-        console.log(currentBoard);
+        cardContainer.removeEventListener('click', clickHandler);
+        sharedSetup(board.setNewBoardInfo());
+        saveLoadButton.removeEventListener('click', loadPrevGame);
+        saveLoadButton.addEventListener('click', saveGame);
+    }
+
+    function sharedSetup (boardInfo) {
+        currentBoard = boardInfo;
         startRestartButton.innerText = 'Restart';
         saveLoadButton.innerText = 'Save';
         cardSetName.innerText = currentBoard[0];
@@ -47,35 +84,39 @@ function load () {
             cardContainer.appendChild(board.makeBoardElements());
         }
 
+        cardContainer.addEventListener('click', clickHandler);
+        console.log(currentBoard);
+    }
 
-        cardContainer.addEventListener('click', e => {
-            if (e.target.nodeName === 'H3') {
-                let id = e.target.parentElement.getAttribute('id');
-                console.log(id);
-            } else if (e.target.nodeName === 'DIV') {
-                let id = e.target.getAttribute('id');
-                id !== 'js-card-container' ? console.log(id): e.stopPropagation();
-            }
-        });
-    });
-}
+    function getAvgStars() {
+        const starHistory = localStorage.getItem('starHistory');
+        if (starHistory === null || starHistory === undefined || !starHistory.length) {
+            // if starHistory is empty or if it does not exist
+            avgStars.classList.toggle('hidden');
+        } else {
+            let total = 0;
+            starHistory.forEach(star => {
+                total += star;
+            });
+            avgStars.innerText = (total/starHistory).toString();
+        }
+    }
 
-function getAvgStars() {
-    const starHistory = localStorage.getItem('starHistory');
-    if (starHistory === null || starHistory === undefined || !starHistory.length) {
-        // if starHistory is empty or if it does not exist
-        hideAvgStars();
-    } else {
-        let total = 0;
-        stars.forEach(star => {
-            total += star;
-        });
+    function saveGame() {
+        const gameState = board.saveGameState();
+        localStorage.setItem('lastGame', JSON.stringify(gameState));
+        saveLoadButton.innerText = 'Load';
+        startRestartButton.innerText = 'Start';
+        saveLoadButton.removeEventListener('click', saveGame);
+        saveLoadButton.addEventListener('click', loadPrevGame);
+        window.alert('Game Saved. Start a new game or load your saved game. Only one game may be saved at a time.');
+        cardSetName.innerText = '';
+        cardContainer.innerHTML = '';
+        boardSet = false;
     }
 }
 
-function hideAvgStars() {
-    // TODO hide average stars
-}
+
 
 function camelCaseToHyphen (str) {
     return str.replace(/([a-zA-Z])(?=[A-Z])/g, "$1-").toLowerCase();
