@@ -225,6 +225,9 @@ function load () {
         winModal.classList.toggle('hidden');
     }
 
+    /** Starts game timer from whatever the value of timerVal is
+     * Sourced in part: http://jsfiddle.net/fc37nckg/
+     */
     function startTimer() {
         timer = setInterval(function () {
             secs.innerText = pad(++timerVal % 60);

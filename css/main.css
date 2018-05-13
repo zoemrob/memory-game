@@ -197,19 +197,23 @@ main {
     text-align: center;
     background-color: #fff8dc;
     margin: 0 auto;
+    z-index: 3;
 }
 
 .win-modal p {
     font-size: 1.5em;
+    z-index: inherit;
 }
 
 .win-modal h2 {
     font-size: 2em;
     text-decoration: underline;
+    z-index: inherit;
 }
 
 .win-modal button {
     display: inline-block;
+    z-index: inherit;
 }
 
 .modal-btn-wrap {
