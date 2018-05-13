@@ -1,6 +1,13 @@
 "use strict";
-const emptyStar = '&#9734;';
-const fullStar = '&#9733;';
+const emptyStar = '<i class="fa fa-star-o"></i>',
+    fullStar = '<i class="fa fa-star"></i>',
+    starMap = {
+        "5"  : `${fullStar}\n${fullStar}\n${fullStar}\n${fullStar}\n${fullStar}`,
+        "4"  : `${fullStar}\n${fullStar}\n${fullStar}\n${fullStar}\n${emptyStar}`,
+        "3"  : `${fullStar}\n${fullStar}\n${fullStar}\n${emptyStar}\n${emptyStar}`,
+        "2"  : `${fullStar}\n${fullStar}\n${emptyStar}\n${emptyStar}\n${emptyStar}`,
+        "1"  : `${fullStar}\n${emptyStar}\n${emptyStar}\n${emptyStar}\n${emptyStar}`
+    };
 let currentBoard;
 
 function load () {
@@ -22,10 +29,12 @@ function load () {
     const saveLoadButton = document.getElementById('js-save-load-btn'),
         startRestartButton = document.getElementById('js-start-restart-btn'),
         timer = document.getElementById('js-timer'),
-        avgStars = document.getElementById('js-star-avg'),
+        avgStars = document.getElementById('js-avg-stars'),
         controls = document.getElementById('js-controls'),
         cardContainer = document.getElementById('js-card-container'),
         cardSetName = document.getElementById('js-card-set-name'),
+        winModal = document.getElementById('js-win-modal'),
+        modalNewGameButton = document.getElementById('js-modal-start'),
         board = new Board();
     let boardSet = false;
 
@@ -39,6 +48,22 @@ function load () {
     startRestartButton.addEventListener('click', standardStart);
 
     saveLoadButton.addEventListener('click', loadPrevGame);
+    // hidden win modal
+    modalNewGameButton.addEventListener('click', standardStart);
+    // closes win modal
+    winModal.addEventListener('click', (e) => {
+        let id = e.target.getAttribute('id');
+        switch (id) {
+            case 'js-modal-bg':
+            case 'js-modal-close-btn':
+            case 'js-modal-start':
+                winModal.classList.toggle('hidden');
+                break;
+            default:
+                e.stopPropagation();
+        }
+    });
+
 
     function loadPrevGame() {
         const lastGame = JSON.parse(localStorage.getItem('lastGame'));
@@ -49,20 +74,25 @@ function load () {
         }
     }
 
-    function clickHandler (e) {
+    function clickHandler(e) {
         let card,
-            id;
+            id,
+            winObject = false;
         id = board.getCardId(e);
         if (id) {
             card = board.handleClicks(id);
             console.log(card);
         } else { return false; }
         if (card) {
-            board.updateBoard(card)
+            board.updateBoard(card);
+            winObject = board.checkWin();
+        } else { return false; }
+        if (winObject) {
+            win(winObject);
         } else { return false; }
     }
 
-    function standardStart () {
+    function standardStart() {
         // reset board state, remove event listener
         board.resetBoard();
         cardContainer.removeEventListener('click', clickHandler);
@@ -71,7 +101,7 @@ function load () {
         saveLoadButton.addEventListener('click', saveGame);
     }
 
-    function sharedSetup (boardInfo) {
+    function sharedSetup(boardInfo) {
         currentBoard = boardInfo;
         startRestartButton.innerText = 'Restart';
         saveLoadButton.innerText = 'Save';
@@ -89,16 +119,17 @@ function load () {
     }
 
     function getAvgStars() {
-        const starHistory = localStorage.getItem('starHistory');
-        if (starHistory === null || starHistory === undefined || !starHistory.length) {
+        const winHistory = JSON.parse(localStorage.getItem('winHistory'));
+        if (!winHistory) {
             // if starHistory is empty or if it does not exist
             avgStars.classList.toggle('hidden');
         } else {
             let total = 0;
-            starHistory.forEach(star => {
-                total += star;
+            winHistory.forEach(win => {
+                total += win.stars;
             });
-            avgStars.innerText = (total/starHistory).toString();
+            let avg = total/winHistory.length;
+            avgStars.innerHTML = "Average Stars: " + starMap[Math.round(avg).toString()] + " (" + avg.toString() + ")";
         }
     }
 
@@ -106,13 +137,123 @@ function load () {
         const gameState = board.saveGameState();
         localStorage.setItem('lastGame', JSON.stringify(gameState));
         saveLoadButton.innerText = 'Load';
-        startRestartButton.innerText = 'Start';
+        startRestartButton.innerText = 'New Game';
         saveLoadButton.removeEventListener('click', saveGame);
         saveLoadButton.addEventListener('click', loadPrevGame);
         window.alert('Game Saved. Start a new game or load your saved game. Only one game may be saved at a time.');
         cardSetName.innerText = '';
         cardContainer.innerHTML = '';
         boardSet = false;
+    }
+
+    function win(winObject) {
+        console.log(winObject);
+        if (useLocalStorage) {
+            // clear saved game to avoid cheating and boosting score
+            localStorage.removeItem('lastGame');
+            let winHistory = localStorage.getItem('winHistory');
+            if (winHistory) {
+                winHistory = JSON.parse(winHistory);
+                winHistory.push(winObject);
+                localStorage.setItem('winHistory', JSON.stringify(winHistory));
+                getAvgStars();
+            } else {
+                winHistory = [];
+                winHistory.push(winObject);
+                localStorage.setItem('winHistory', JSON.stringify(winHistory));
+                getAvgStars();
+            }
+        }
+        // Remove event listener from board, reset start/load buttons
+        cardContainer.removeEventListener('click', clickHandler);
+        saveLoadButton.innerText = 'Load';
+        saveLoadButton.removeEventListener('click', saveGame);
+        saveLoadButton.addEventListener('click', loadPrevGame);
+        startRestartButton.innerText = 'New Game';
+
+        getWinPopup(winObject);
+    }
+
+    function getWinModal(winObject) {
+        const modal = document.createElement('div');
+
+        const winModal = document.createDocumentFragment(),
+            bgModal = document.createElement('div'),
+            winStatsModal = document.createElement('div'),
+            closeStatsModal = document.createElement('span'),
+            starStats = document.createElement('p'),
+            turnStats = document.createElement('p'),
+            timeStats = document.createElement('p'),
+            cardSet = document.createElement('h2'),
+            closeButton = document.createElement('button'),
+            newGameButton = document.createElement('button'),
+            stars = starMap[winObject.stars.toString()];
+
+        bgModal.classList.add('modal-bg');
+        bgModal.setAttribute('id', 'js-modal-bg');
+
+        winStatsModal.classList.add('win-modal');
+
+        closeStatsModal.innerHTML = '<i class="fa fa-window-close"></i>';
+        closeStatsModal.setAttribute('id', 'js-close-x');
+
+        starStats.innerHTML = stars;
+        turnStats.innerText = winObject.turns;
+
+        cardSet.innerHTML = winObject.cardSet;
+
+        closeButton.innerText = 'Close';
+        closeButton.setAttribute('id', 'js-close-btn');
+
+        newGameButton.innerText = 'New Game';
+        newGameButton.setAttribute('id', 'js-modal-start');
+        newGameButton.addEventListener('click', standardStart);
+
+        modal.addEventListener('click', e => {
+            let id = e.target.getAttribute('id');
+            switch (id) {
+                case 'js-modal-bg':
+                case 'js-close-btn':
+                case 'js-modal-start':
+                    modal.remove();
+                    break;
+                default:
+                    e.stopPropagation();
+            }
+        });
+
+        winStatsModal.appendChild(closeStatsModal);
+        winStatsModal.appendChild(cardSet);
+        winStatsModal.appendChild(starStats);
+        winStatsModal.appendChild(turnStats);
+        if (winObject.winTime) {
+            timeStats.innerText = winObject.winTime;
+            winStatsModal.appendChild(timeStats);
+        }
+        winStatsModal.appendChild(closeButton);
+        winStatsModal.appendChild(newGameButton);
+
+        bgModal.appendChild(winStatsModal);
+        winModal.appendChild(bgModal);
+        modal.appendChild(winModal);
+        document.body.appendChild(modal);
+    }
+
+    function getWinPopup(winObject) {
+        const turnStats = document.getElementById('js-modal-turns'),
+            starStats = document.getElementById('js-modal-win-stars'),
+            cardSetName = document.getElementById('js-modal-set-name'),
+            winTimer = document.getElementById('js-win-timer'),
+            winTimerVal = document.getElementById('js-win-timer-val');
+
+        turnStats.innerHTML = "Congratulations!<br>You won in " + winObject.turns + " turns!";
+        starStats.innerHTML = "Star Rating:" + starMap[winObject.stars.toString()];
+        cardSetName.innerText = winObject.cardSet;
+        if (winObject.winTime) {
+            winTimerVal.innerHTML = "Total time: " + winObject.winTime;
+            winTimer.classList.toggle('hidden');
+        }
+        winModal.classList.toggle('hidden');
     }
 }
 
@@ -128,7 +269,7 @@ function hyphenCaseToCamel (str) {
     });
 }
 
-function camelCaseToNormal (str) {
+function camelCaseToNormal(str) {
     let init = str.replace(/([A-Z])/g, " $1");
     return init.charAt(0).toUpperCase() + init.slice(1);
 }

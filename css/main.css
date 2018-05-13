@@ -13,6 +13,9 @@ html {
 
 button {
     border-radius: 10px;
+    cursor: pointer;
+    margin: 10px;
+    padding: 6px;
 }
 
 main {
@@ -27,7 +30,6 @@ main {
     margin: 1em 2.5% 0 2.5%;
     display: flex;
     flex-wrap: wrap;
-    text-align: left;
 }
 
 .controls,
@@ -40,11 +42,7 @@ main {
 }
 
 .game-title {
-    width: 79%;
-}
-
-.control-btn {
-    width: 10%;
+    width: 100%;
 }
 
 /**
@@ -109,4 +107,48 @@ main {
 
 .hidden {
     display: none;
+}
+
+/**
+    Win Modal
+ */
+
+.modal-bg {
+    position: fixed;
+    z-index: 3;
+    padding-top: 15%;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.win-modal {
+    padding: 20px;
+    border-radius: 10px;
+    border: 2px solid #000;
+    width: 45%;
+    text-align: center;
+    background-color: #22ef0b;
+    margin: 0 auto;
+}
+
+.win-modal p {
+    font-size: 1.5em;
+}
+
+.win-modal h2 {
+    font-size: 2em;
+    text-decoration: underline;
+}
+
+.win-modal button {
+    border-radius: 3px;
+    display: inline-block;
+}
+
+.modal-btn-wrap {
+    text-align: right;
 }

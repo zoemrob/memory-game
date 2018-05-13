@@ -4,33 +4,39 @@
     <meta charset="UTF-8">
     <title>Memory-Game!</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <link href="css/main.css" rel="stylesheet" type="text/css">
 </head>
     <body>
         <header class="header-dock">
             <div class="controls" id="js-controls">
                 <h1 class="game-title control-item" id="js-title">Zoe's Memory Game</h1>
-                <div class="control-item control-btn" id="js-save">
+                <div class="control-item" id="js-save">
                     <button class="save-btn" type="button" id="js-save-load-btn">Load</button>
                 </div>
-                <div class="control-item control-btn" id="js-start-restart">
-                    <button class="start-btn" type="button" id="js-start-restart-btn">Start</button>
+                <div class="control-item" id="js-start-restart">
+                    <button class="start-btn" type="button" id="js-start-restart-btn">New Game</button>
                 </div>
             </div>
             <div class="stats-dock">
                 <div class="timer stats-item" id="js-timer-div">
-                    <p id="js-timer">Time:</p>
+                    <i class="fa fa-hourglass-start"></i><span id="js-timer"></span>
                 </div>
-                <div class="stars stats-item" id="js-stars">
-                    <p id="js-stars">&#9734; &#9733; &#9733;</p>
+                <div class="stars stats-item">
+                    <span id="js-stars">
+                        <i class="fa fa-star"></i>
+                        <i class="fa fa-star"></i>
+                        <i class="fa fa-star"></i>
+                        <i class="fa fa-star"></i>
+                        <i class="fa fa-star"></i>
+                    </span>
                 </div>
                 <div class="move-counter stats-item">
                     <p>Moves: <span id="js-moves"></span></p>
                 </div>
-                <div class="star-avg stats-item" id="js-star-avg">
+                <div class="star-avg stats-item">
                     <p id="js-avg-stars">Average Stars: &#9734; &#9734; &#9734;</p>
                     <!--To be added, checks localStorage for star history, averages stars-->
-                    <!--add a "greyed" class to css, if no history is found, toggle "greyed"-->
                 </div>
             </div>
         </header>
@@ -40,6 +46,19 @@
                 <!--Hidden by default, when start is clicked, make visible-->
             </div>
         </main>
+        <!--Hidden modal for congratulations-->
+        <div class="hidden modal-bg" id="js-win-modal">
+            <div class="win-modal">
+                <h2 id="js-modal-set-name"></h2>
+                <p class="congrats" id="js-modal-turns"></p>
+                <p id="js-modal-win-stars"></p>
+                <p id="js-win-timer" class="hidden"></p>
+                <div class="modal-btn-wrap">
+                    <button id="js-modal-close-btn">Close</button>
+                    <button id="js-modal-start">New Game</button>
+                </div>
+            </div>
+        </div>
         <script src="js/Board.js" type="application/x-javascript"></script>
         <script src="js/game.js" type="application/x-javascript"></script>
     </body>

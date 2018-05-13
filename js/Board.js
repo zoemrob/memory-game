@@ -1,5 +1,9 @@
 "use strict";
 const Board = function () {
+    this.emptyStar = 'fa-star-o';
+    this.fullStar = 'fa-star';
+    this.starCounter = 5;
+    this.timer = null;
     this.clickCounter = 0;
     this.firstClick = null;
     this.secondClick = null;
@@ -66,7 +70,6 @@ const Board = function () {
             "Munchkin"
         ]
     };
-    this.lastBoard = {};
 };
 
 Board.prototype.saveGameState = function () {
@@ -152,8 +155,7 @@ Board.prototype.createCard = function (cardName, cardId, matched = false) {
 };
 
 /** Shuffles nodes on documentFragment
- * sourced: https://stackoverflow.com/questions/25175798/how-to-shuffle-a-nodelist?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
- * @param documentFrag
+ * sourced: https://stackoverflow.com/questions/25175798/how-to-shuffle-a-nodelist
  * @return documentFragment list
  */
 Board.prototype.shuffleBoard = function (documentFrag) {
@@ -170,7 +172,6 @@ Board.prototype.getCardId = function (e) {
         return false;
     }
     let id;
-    console.log('in getCardId');
     if (e.target.nodeName === 'H3') {
         id = e.target.parentElement.getAttribute('id');
     } else if (e.target.nodeName === 'DIV') {
@@ -184,7 +185,6 @@ Board.prototype.handleClicks = function (id) {
     let cardChange = false;
     this.boardInfo.forEach(card => {
         if (id === card.id1 || id === card.id2) {
-            console.log('entered 1st con');
             if (card.matched) { return false;}
             else if (this.firstClick === id) { return false; }
             else {
@@ -194,7 +194,6 @@ Board.prototype.handleClicks = function (id) {
                     this.toggleOpen(id);
                 } else if (this.clickCounter === 2) {
                     this.addTurn();
-                    // this.clickCounter = 0;
                     this.secondClick = id;
                     cardChange = this.checkMatches();
                 }
@@ -214,6 +213,33 @@ Board.prototype.addTurn = function () {
     this.turnCounter++;
     const moveCounter = document.getElementById('js-moves');
     moveCounter.innerText = this.turnCounter.toString();
+    this.checkScore();
+};
+
+Board.prototype.checkScore = function () {
+    const stars = document.getElementById('js-stars');
+    switch (this.turnCounter) {
+        case 12:
+            this.starCounter = 4;
+            stars.children[4].classList.toggle(this.fullStar);
+            stars.children[4].classList.toggle(this.emptyStar);
+            break;
+        case 14:
+            this.starCounter = 3;
+            stars.children[3].classList.toggle(this.fullStar);
+            stars.children[3].classList.toggle(this.emptyStar);
+            break;
+        case 16:
+            this.starCounter = 2;
+            stars.children[2].classList.toggle(this.fullStar);
+            stars.children[2].classList.toggle(this.emptyStar);
+            break;
+        case 19:
+            this.starCounter = 1;
+            stars.children[1].classList.toggle(this.fullStar);
+            stars.children[1].classList.toggle(this.emptyStar);
+            break;
+    }
 };
 
 // returns card obj if not already matched, else returns false
@@ -257,7 +283,6 @@ Board.prototype.incorrectGuess = function (that) {
 };
 
 Board.prototype.toggleOpen = function (element) {
-    console.log('supposedly toggled');
     const open = document.getElementById(element);
     open.classList.toggle('open');
 };
@@ -284,6 +309,23 @@ Board.prototype.updateBoard = function(card) {
         }
     }
 
+};
+
+Board.prototype.checkWin = function () {
+    let matchedCount = 0,
+        win = 8;
+    this.boardInfo.forEach(card => {
+        card.matched ? ++matchedCount: false;
+    });
+    if (matchedCount === win) {
+        let winObject = {};
+        winObject.timeStamp = new Date();
+        winObject.stars = this.starCounter;
+        winObject.turns = this.turnCounter;
+        winObject.cardSet = this.cardSetName;
+        winObject.winTime = this.timer;
+        return winObject;
+    }
 };
 
 Board.prototype.debug = function () {
