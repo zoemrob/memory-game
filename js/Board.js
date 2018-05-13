@@ -73,7 +73,11 @@ const Board = function () {
 };
 
 Board.prototype.saveGameState = function () {
-    return {cards: this.boardInfo, turns: this.turnCounter};
+    return {
+        cards: this.boardInfo,
+        turns: this.turnCounter,
+        timer: this.timer
+    };
 };
 
 Board.prototype.setNewBoardInfo = function () {
@@ -102,6 +106,7 @@ Board.prototype.setNewBoardInfo = function () {
 Board.prototype.setLastBoardInfo = function (boardInfo) {
     this.boardInfo = boardInfo.cards;
     this.turnCounter = boardInfo.turns;
+    this.timer = boardInfo.timer;
     return this.boardInfo;
 };
 
@@ -326,6 +331,10 @@ Board.prototype.updateBoard = function(card) {
 
 };
 
+Board.prototype.setTimer = function(val) {
+    this.timer = val;
+};
+
 Board.prototype.checkWin = function () {
     let matchedCount = 0,
         win = 8;
@@ -341,8 +350,4 @@ Board.prototype.checkWin = function () {
         winObject.winTime = this.timer;
         return winObject;
     }
-};
-
-Board.prototype.debug = function () {
-    console.log(this);
 };

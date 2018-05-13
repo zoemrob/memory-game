@@ -26,18 +26,24 @@ function load () {
             return false;
         }
     })();
+
     const saveLoadButton = document.getElementById('js-save-load-btn'),
         startRestartButton = document.getElementById('js-start-restart-btn'),
-        timer = document.getElementById('js-timer'),
         avgStars = document.getElementById('js-avg-stars'),
-        controls = document.getElementById('js-controls'),
         cardContainer = document.getElementById('js-card-container'),
         cardSetName = document.getElementById('js-card-set-name'),
         winModal = document.getElementById('js-win-modal'),
         modalNewGameButton = document.getElementById('js-modal-start'),
         starCounter = document.getElementById('js-stars'),
+        statsPanel = document.getElementById('js-stats-dock'),
         board = new Board();
-    let boardSet = false;
+
+    let boardSet = false,
+        timerVal = 0,
+        timer,
+        secs = document.getElementById('js-timer-secs'),
+        mins = document.getElementById('js-timer-mins'),
+        winStatus = false;
 
     if (useLocalStorage) {
         getAvgStars();
@@ -70,6 +76,7 @@ function load () {
         const lastGame = JSON.parse(localStorage.getItem('lastGame'));
         if (lastGame) {
             sharedSetup(board.setLastBoardInfo(lastGame));
+            setTimer(lastGame.timer)
         } else {
             window.alert('There is no saved game.');
         }
@@ -81,6 +88,12 @@ function load () {
             winObject = false;
         id = board.getCardId(e);
         if (id) {
+            // if valid click, and timer is 0
+            if (timerVal === 0 || timerVal === board.timer) {
+                clearInterval(timer);
+                startTimer();
+            }
+            board.setTimer(timerVal);
             card = board.handleClicks(id);
             console.log(card);
         } else { return false; }
@@ -96,6 +109,8 @@ function load () {
     function standardStart() {
         // reset board state, remove event listener
         board.resetBoard();
+        timerVal = 0;
+        clearInterval(timer);
         cardContainer.removeEventListener('click', clickHandler);
         sharedSetup(board.setNewBoardInfo());
         saveLoadButton.removeEventListener('click', loadPrevGame);
@@ -108,6 +123,10 @@ function load () {
         if (cardContainer.classList.contains('hidden')) {
             cardContainer.classList.remove('hidden');
         }
+        if (statsPanel.classList.contains('hidden')) {
+            statsPanel.classList.remove('hidden');
+        }
+        winStatus = false;
         currentBoard = boardInfo;
         startRestartButton.innerText = 'Restart';
         saveLoadButton.innerText = 'Save';
@@ -141,6 +160,9 @@ function load () {
 
     function saveGame() {
         cardContainer.classList.add('hidden');
+        clearInterval(timer);
+        board.setTimer(timerVal);
+
         const gameState = board.saveGameState();
         localStorage.setItem('lastGame', JSON.stringify(gameState));
         saveLoadButton.innerText = 'Load';
@@ -155,6 +177,8 @@ function load () {
 
     function win(winObject) {
         console.log(winObject);
+        // stop timer
+        clearInterval(timer);
         if (useLocalStorage) {
             // clear saved game to avoid cheating and boosting score
             localStorage.removeItem('lastGame');
@@ -177,112 +201,49 @@ function load () {
         saveLoadButton.removeEventListener('click', saveGame);
         saveLoadButton.addEventListener('click', loadPrevGame);
         startRestartButton.innerText = 'New Game';
+        winStatus = true;
 
         getWinPopup(winObject);
-    }
-
-    function getWinModal(winObject) {
-        const modal = document.createElement('div');
-
-        const winModal = document.createDocumentFragment(),
-            bgModal = document.createElement('div'),
-            winStatsModal = document.createElement('div'),
-            closeStatsModal = document.createElement('span'),
-            starStats = document.createElement('p'),
-            turnStats = document.createElement('p'),
-            timeStats = document.createElement('p'),
-            cardSet = document.createElement('h2'),
-            closeButton = document.createElement('button'),
-            newGameButton = document.createElement('button'),
-            stars = starMap[winObject.stars.toString()];
-
-        bgModal.classList.add('modal-bg');
-        bgModal.setAttribute('id', 'js-modal-bg');
-
-        winStatsModal.classList.add('win-modal');
-
-        closeStatsModal.innerHTML = '<i class="fa fa-window-close"></i>';
-        closeStatsModal.setAttribute('id', 'js-close-x');
-
-        starStats.innerHTML = stars;
-        turnStats.innerText = winObject.turns;
-
-        cardSet.innerHTML = winObject.cardSet;
-
-        closeButton.innerText = 'Close';
-        closeButton.setAttribute('id', 'js-close-btn');
-
-        newGameButton.innerText = 'New Game';
-        newGameButton.setAttribute('id', 'js-modal-start');
-        newGameButton.addEventListener('click', standardStart);
-
-        modal.addEventListener('click', e => {
-            let id = e.target.getAttribute('id');
-            switch (id) {
-                case 'js-modal-bg':
-                case 'js-close-btn':
-                case 'js-modal-start':
-                    modal.remove();
-                    break;
-                default:
-                    e.stopPropagation();
-            }
-        });
-
-        winStatsModal.appendChild(closeStatsModal);
-        winStatsModal.appendChild(cardSet);
-        winStatsModal.appendChild(starStats);
-        winStatsModal.appendChild(turnStats);
-        if (winObject.winTime) {
-            timeStats.innerText = winObject.winTime;
-            winStatsModal.appendChild(timeStats);
-        }
-        winStatsModal.appendChild(closeButton);
-        winStatsModal.appendChild(newGameButton);
-
-        bgModal.appendChild(winStatsModal);
-        winModal.appendChild(bgModal);
-        modal.appendChild(winModal);
-        document.body.appendChild(modal);
     }
 
     function getWinPopup(winObject) {
         const turnStats = document.getElementById('js-modal-turns'),
             starStats = document.getElementById('js-modal-win-stars'),
             cardSetName = document.getElementById('js-modal-set-name'),
-            winTimer = document.getElementById('js-win-timer'),
-            winTimerVal = document.getElementById('js-win-timer-val');
+            winTimer = document.getElementById('js-win-timer');
 
         turnStats.innerHTML = "Congratulations!<br>You won in " + winObject.turns + " turns!";
-        starStats.innerHTML = "Star Rating:" + starMap[winObject.stars.toString()];
+        starStats.innerHTML = "Star Rating: " + starMap[winObject.stars.toString()];
         cardSetName.innerText = winObject.cardSet;
         if (winObject.winTime) {
-            winTimerVal.innerHTML = "Total time: " + winObject.winTime;
+            let min = parseInt((winObject.winTime / 60), 10).toString(),
+                secs = (winObject.winTime % 60).toString();
+            winTimer.innerText += "Win time: ";
+            winTimer.innerText += min > 0 ? min + " mins & " + secs + " seconds!" : secs + " seconds!";
             winTimer.classList.toggle('hidden');
         }
         winModal.classList.toggle('hidden');
     }
+
+    function startTimer() {
+        timer = setInterval(function () {
+            secs.innerText = pad(++timerVal % 60);
+            mins.innerText = pad(parseInt(timerVal / 60, 10));
+        }, 1000);
+    }
+
+    function setTimer(val) {
+        timerVal = val;
+    }
 }
 
-
-
-function camelCaseToHyphen (str) {
-    return str.replace(/([a-zA-Z])(?=[A-Z])/g, "$1-").toLowerCase();
-}
-
-function hyphenCaseToCamel (str) {
-    return str.replace(/-([a-z])/g, g => {
-        return g[1].toUpperCase();
-    });
+function pad(val) {
+    return val > 9 ? val : "0" + val;
 }
 
 function camelCaseToNormal(str) {
     let init = str.replace(/([A-Z])/g, " $1");
     return init.charAt(0).toUpperCase() + init.slice(1);
-}
-
-function shuffle(elements) {
-    // TODO implement shuffle method
 }
 
 document.addEventListener('DOMContentLoaded', load);

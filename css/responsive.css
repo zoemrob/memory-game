@@ -24,6 +24,10 @@
     .star-avg .fa {
         display: none;
     }
+
+    h3 {
+        font-size: 1em;
+    }
 }
 
 @media screen and (max-width: 530px){
@@ -48,11 +52,19 @@
     .star-avg p {
         margin-top: 0;
     }
+
+    h3 {
+        font-size: 0.8em;
+    }
 }
 
 @media screen and (max-width: 380px) {
     .fa-star,
     .fa-star-o {
         font-size: 0.8em;
+    }
+
+    h3 {
+        font-size: 0.6em;
     }
 }

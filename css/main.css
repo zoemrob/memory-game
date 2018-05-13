@@ -1,8 +1,8 @@
 html {
     box-sizing: border-box;
-    max-width: 900px;
     text-align: center;
     margin: 0 auto 0 auto;
+    font-family: 'Comfortaa', sans-serif;
 }
 
 *,
@@ -13,6 +13,7 @@ html {
 
 body {
     margin: 0;
+    background-color: #ffa07a;
 }
 
 button {
@@ -23,8 +24,14 @@ button {
 }
 
 main {
-    max-width: 80%;
+    max-width: 800px;
     margin: 0 auto 0 auto;
+}
+
+.card-container,
+.stats-dock {
+    max-width: 80%;
+    margin: auto;
 }
 
 .fa-star,
@@ -40,9 +47,9 @@ main {
     margin: 0;
     display: flex;
     flex-wrap: wrap;
-    -webkit-box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.5);
-    -moz-box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.5);
-    box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.5);
+    -webkit-box-shadow: 0 10px 10px rgba(0, 0, 0, 0.5);
+    -moz-box-shadow: 0 10px 10px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 10px 10px rgba(0, 0, 0, 0.5);
 }
 
 .controls,
@@ -66,6 +73,11 @@ main {
 /**
     Stats header
  */
+.card-set-name {
+    text-decoration: underline;
+    text-align: center;
+    margin-bottom: 0;
+}
 
 .stats-dock {
     text-align: center;
@@ -88,7 +100,7 @@ main {
     display: grid;
     grid-template-columns: 24% 24% 24% 24%;
     grid-gap: 8px;
-    margin: 0 auto;
+    margin-bottom: 30px;
 }
 
 .card-container:nth-child(4),
@@ -99,7 +111,7 @@ main {
 }
 
 .card {
-    background-color: #6495ed;
+    background-color: #fff8dc;
     text-align: inherit;
     padding-bottom: 100%;
     border-radius: 10px;
@@ -107,7 +119,32 @@ main {
     -webkit-box-shadow: 3px 3px 0 #000;
     -moz-box-shadow: 3px 3px 0 #000;
     box-shadow: 3px 3px 0 #000;
-    margin: 0 4px 4px 0;
+    margin: 4px;
+    /* Animations
+       Sourced: http://www.designskilz.com/cool-css-buttons/ "Hover Button by Hakim El Hattab"
+    */
+    -webkit-transform: translateZ(0);
+    -moz-transform: translateZ(0);
+    -ms-transform: translateZ(0);
+    transform: translateZ(0);
+
+    -webkit-transition: all 0.2s ease;
+    -moz-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+}
+
+.card:hover {
+    top: -5px;
+    box-shadow: 3px 3px 0 #000;
+
+    -webkit-transform: rotateX(20deg);
+    -moz-transform: rotateX(20deg);
+    transform: rotateX(20deg);
+}
+
+.card:active {
+    top: 0;
+    box-shadow: 0 0 0;
 }
 
 .card h3 {
@@ -115,17 +152,12 @@ main {
     display: none;
 }
 
-.card-set-name {
-    text-decoration: underline;
-    text-align: center;
-}
-
 .matched {
-    background-color: red;
+    background-color: #ffd700;
 }
 
 .open {
-    background-color: green;
+    background-color: #20b2aa;
 }
 
 .open h3,
@@ -163,7 +195,7 @@ main {
     border: 2px solid #000;
     width: 90%;
     text-align: center;
-    background-color: #22ef0b;
+    background-color: #fff8dc;
     margin: 0 auto;
 }
 
@@ -177,7 +209,6 @@ main {
 }
 
 .win-modal button {
-    border-radius: 3px;
     display: inline-block;
 }
 

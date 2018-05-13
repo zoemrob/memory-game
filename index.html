@@ -5,6 +5,7 @@
     <title>Memory-Game!</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Comfortaa" rel="stylesheet">
     <link href="css/main.css" rel="stylesheet" type="text/css">
     <link href="css/responsive.css" rel="stylesheet" type="text/css">
 </head>
@@ -22,9 +23,9 @@
         </header>
         <main>
             <h2 class="card-set-name" id="js-card-set-name"></h2>
-            <div class="stats-dock">
+            <div class="stats-dock hidden" id="js-stats-dock">
                 <div class="timer stats-item" id="js-timer-div">
-                    <i class="fa fa-hourglass-start"></i><span id="js-timer"></span>
+                    <i class="fa fa-hourglass-start"></i><span id="js-timer-mins"></span>:<span id="js-timer-secs"></span>
                 </div>
                 <div class="stars stats-item">
                     <span id="js-stars">
