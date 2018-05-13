@@ -218,8 +218,7 @@ function load () {
         if (winObject.winTime) {
             let min = parseInt((winObject.winTime / 60), 10).toString(),
                 secs = (winObject.winTime % 60).toString();
-            winTimer.innerText = '';
-            winTimer.innerText += "Win time: ";
+            winTimer.innerText = "Win time: ";
             winTimer.innerText += min > 0 ? min + " mins & " + secs + " seconds!" : secs + " seconds!";
             winTimer.classList.toggle('hidden');
         }
