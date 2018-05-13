@@ -165,6 +165,10 @@ Board.prototype.shuffleBoard = function (documentFrag) {
 };
 
 Board.prototype.getCardId = function (e) {
+    if (this.clickCounter === 2) {
+        e.stopPropagation();
+        return false;
+    }
     let id;
     console.log('in getCardId');
     if (e.target.nodeName === 'H3') {
@@ -190,7 +194,7 @@ Board.prototype.handleClicks = function (id) {
                     this.toggleOpen(id);
                 } else if (this.clickCounter === 2) {
                     this.addTurn();
-                    this.clickCounter = 0;
+                    // this.clickCounter = 0;
                     this.secondClick = id;
                     cardChange = this.checkMatches();
                 }
@@ -247,6 +251,9 @@ Board.prototype.checkMatches = function () {
 Board.prototype.incorrectGuess = function (that) {
     that.toggleOpen(that.firstClick);
     that.toggleOpen(that.secondClick);
+    that.clickCounter = 0;
+    that.firstClick = null;
+    that.secondClick = null;
 };
 
 Board.prototype.toggleOpen = function (element) {
@@ -261,6 +268,7 @@ Board.prototype.updateBoard = function(card) {
     if (card.matched) {
         card1.classList.toggle('matched');
         card2.classList.toggle('matched');
+        this.clickCounter = 0;
     }
     if (this.clickCounter === 1) {
         if (this.firstClick === card.id1) {
