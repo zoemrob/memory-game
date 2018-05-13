@@ -1,0 +1,58 @@
+@media screen and (min-width: 700px) {
+    .win-modal {
+        width: 70%;
+    }
+}
+
+@media screen and (max-width: 700px) {
+    .game-title {
+        padding-left: 30px;
+        max-width: 50%;
+        font-size: 1.5em;
+    }
+
+    .control-item:nth-child(3) {
+        padding-right: 30px;
+    }
+
+    /*.card-set-name {*/
+        /*margin: 0;*/
+    /*}*/
+}
+
+@media screen and (max-width: 650px) {
+    .star-avg .fa {
+        display: none;
+    }
+}
+
+@media screen and (max-width: 530px){
+    .game-title {
+        max-width: 100%;
+        width: 100%;
+        text-align: center;
+        padding: 0;
+    }
+
+    .control-item:nth-child(3) {
+        padding: 0;
+    }
+
+    .timer,
+    .stars,
+    .move-counter {
+        width: 30%;
+        margin: 0 auto;
+    }
+
+    .star-avg p {
+        margin-top: 0;
+    }
+}
+
+@media screen and (max-width: 380px) {
+    .fa-star,
+    .fa-star-o {
+        font-size: 0.8em;
+    }
+}

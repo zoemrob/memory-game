@@ -11,6 +11,10 @@ html {
     box-sizing: inherit;
 }
 
+body {
+    margin: 0;
+}
+
 button {
     border-radius: 10px;
     cursor: pointer;
@@ -22,14 +26,23 @@ main {
     max-width: 80%;
     margin: 0 auto 0 auto;
 }
+
+.fa-star,
+.fa-star-o {
+    color: #ffd700;
+}
+
 /**
     Controls header
  */
 
 .header-dock {
-    margin: 1em 2.5% 0 2.5%;
+    margin: 0;
     display: flex;
     flex-wrap: wrap;
+    -webkit-box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.5);
+    -moz-box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.5);
+    box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.5);
 }
 
 .controls,
@@ -42,7 +55,12 @@ main {
 }
 
 .game-title {
-    width: 100%;
+    width: 70%;
+    text-align: left;
+}
+
+.start-btn {
+    width: 75px;
 }
 
 /**
@@ -51,6 +69,10 @@ main {
 
 .stats-dock {
     text-align: center;
+}
+
+.stats-dock {
+    margin-top: 0;
 }
 
 .stats-item {
@@ -69,12 +91,23 @@ main {
     margin: 0 auto;
 }
 
+.card-container:nth-child(4),
+.card-container:nth-child(8),
+.card-container:nth-child(12),
+.card-container:nth-child(16) {
+    margin-right: 8px;
+}
+
 .card {
     background-color: #6495ed;
     text-align: inherit;
     padding-bottom: 100%;
     border-radius: 10px;
     position: relative;
+    -webkit-box-shadow: 3px 3px 0 #000;
+    -moz-box-shadow: 3px 3px 0 #000;
+    box-shadow: 3px 3px 0 #000;
+    margin: 0 4px 4px 0;
 }
 
 .card h3 {
@@ -128,7 +161,7 @@ main {
     padding: 20px;
     border-radius: 10px;
     border: 2px solid #000;
-    width: 45%;
+    width: 90%;
     text-align: center;
     background-color: #22ef0b;
     margin: 0 auto;

@@ -141,6 +141,10 @@ Board.prototype.makeBoardElements = function () {
 
 Board.prototype.resetBoard = function () {
     this.boardInfo = [];
+    if (this.turnCounter > 0) {
+        this.resetTurns();
+    }
+
 };
 
 Board.prototype.createCard = function (cardName, cardId, matched = false) {
@@ -216,6 +220,15 @@ Board.prototype.addTurn = function () {
     this.checkScore();
 };
 
+Board.prototype.resetTurns = function () {
+    this.turnCounter = 0;
+    this.starCounter = 5;
+    const moveCounter = document.getElementById('js-moves'),
+        starCounter = document.getElementById('js-stars');
+    moveCounter.innerText = '';
+
+};
+
 Board.prototype.checkScore = function () {
     const stars = document.getElementById('js-stars');
     switch (this.turnCounter) {
@@ -284,7 +297,9 @@ Board.prototype.incorrectGuess = function (that) {
 
 Board.prototype.toggleOpen = function (element) {
     const open = document.getElementById(element);
-    open.classList.toggle('open');
+    if (open) {
+        open.classList.toggle('open');
+    }
 };
 
 Board.prototype.updateBoard = function(card) {

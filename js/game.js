@@ -35,6 +35,7 @@ function load () {
         cardSetName = document.getElementById('js-card-set-name'),
         winModal = document.getElementById('js-win-modal'),
         modalNewGameButton = document.getElementById('js-modal-start'),
+        starCounter = document.getElementById('js-stars'),
         board = new Board();
     let boardSet = false;
 
@@ -99,9 +100,14 @@ function load () {
         sharedSetup(board.setNewBoardInfo());
         saveLoadButton.removeEventListener('click', loadPrevGame);
         saveLoadButton.addEventListener('click', saveGame);
+        cardContainer.addEventListener('click', clickHandler);
+        starCounter.innerHTML = starMap['5'];
     }
 
     function sharedSetup(boardInfo) {
+        if (cardContainer.classList.contains('hidden')) {
+            cardContainer.classList.remove('hidden');
+        }
         currentBoard = boardInfo;
         startRestartButton.innerText = 'Restart';
         saveLoadButton.innerText = 'Save';
@@ -129,11 +135,12 @@ function load () {
                 total += win.stars;
             });
             let avg = total/winHistory.length;
-            avgStars.innerHTML = "Average Stars: " + starMap[Math.round(avg).toString()] + " (" + avg.toString() + ")";
+            avgStars.innerHTML = "Average Stars: " + starMap[Math.round(avg).toString()] + " (" + avg.toString().slice(0, 3) + ")";
         }
     }
 
     function saveGame() {
+        cardContainer.classList.add('hidden');
         const gameState = board.saveGameState();
         localStorage.setItem('lastGame', JSON.stringify(gameState));
         saveLoadButton.innerText = 'Load';

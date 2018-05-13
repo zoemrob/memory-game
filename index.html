@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <link href="css/main.css" rel="stylesheet" type="text/css">
+    <link href="css/responsive.css" rel="stylesheet" type="text/css">
 </head>
     <body>
         <header class="header-dock">
@@ -18,6 +19,9 @@
                     <button class="start-btn" type="button" id="js-start-restart-btn">New Game</button>
                 </div>
             </div>
+        </header>
+        <main>
+            <h2 class="card-set-name" id="js-card-set-name"></h2>
             <div class="stats-dock">
                 <div class="timer stats-item" id="js-timer-div">
                     <i class="fa fa-hourglass-start"></i><span id="js-timer"></span>
@@ -39,10 +43,7 @@
                     <!--To be added, checks localStorage for star history, averages stars-->
                 </div>
             </div>
-        </header>
-        <main>
-            <h2 class="card-set-name" id="js-card-set-name"></h2>
-            <div class="card-container" id="js-card-container">
+            <div class="card-container hidden" id="js-card-container">
                 <!--Hidden by default, when start is clicked, make visible-->
             </div>
         </main>
