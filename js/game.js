@@ -1,4 +1,5 @@
 "use strict";
+// map template for easy star updates
 const emptyStar = '<i class="fa fa-star-o"></i>',
     fullStar = '<i class="fa fa-star"></i>',
     starMap = {
@@ -10,10 +11,13 @@ const emptyStar = '<i class="fa fa-star-o"></i>',
     };
 let currentBoard;
 
+/**
+ * @description wrapper for game function
+ */
 function load () {
     /**
      * @description: Checks if localStorage exists
-     * @return:      {boolean} indicator of whether localStorage exists
+     * @return: {boolean} - indicator of whether localStorage exists
      * sourced from: https://stackoverflow.com/questions/16427636/check-if-localstorage-is-available/16427747
      */
     const useLocalStorage = (() => {
@@ -43,8 +47,9 @@ function load () {
         timer,
         secs = document.getElementById('js-timer-secs'),
         mins = document.getElementById('js-timer-mins'),
-        winStatus = false;
+        firstClick = true;
 
+    // displays save/load and average stars if using localStorage
     if (useLocalStorage) {
         getAvgStars();
     } else {
@@ -52,12 +57,14 @@ function load () {
         saveLoadButton.classList.toggle('hidden');
     }
 
+    // Set initial event listeners
     startRestartButton.addEventListener('click', standardStart);
-
     saveLoadButton.addEventListener('click', loadPrevGame);
-    // hidden win modal
     modalNewGameButton.addEventListener('click', standardStart);
-    // closes win modal
+
+    /**
+     * @description uses switch to close modal if correct elements are clicked
+     */
     winModal.addEventListener('click', (e) => {
         let id = e.target.getAttribute('id');
         switch (id) {
@@ -71,7 +78,9 @@ function load () {
         }
     });
 
-
+    /**
+     * @description sets board state from previous saved game
+     */
     function loadPrevGame() {
         const lastGame = JSON.parse(localStorage.getItem('lastGame'));
         if (lastGame) {
@@ -82,32 +91,43 @@ function load () {
         }
     }
 
+    /**
+     * @description Main interface for communicating with Board methods
+     * @param {MouseEvent} e - click event
+     * @return {boolean} - return statement to exit function if condition not met
+     */
     function clickHandler(e) {
         let card,
             id,
             winObject = false;
         id = board.getCardId(e);
+        // checks if click was valid
         if (id) {
-            // if valid click, and timer is 0
-            if (timerVal === 0 || timerVal === board.timer) {
+            // if first click on new board, or if load timer is equal to board.timer
+            if (firstClick || timerVal === board.timer) {
+                firstClick = false;
                 clearInterval(timer);
                 startTimer();
             }
             board.setTimer(timerVal);
             card = board.handleClicks(id);
-            console.log(card);
         } else { return false; }
+        // update DOM if valid click
         if (card) {
             board.updateBoard(card);
             winObject = board.checkWin();
         } else { return false; }
+        // if all are matched, win()
         if (winObject) {
             win(winObject);
         } else { return false; }
     }
 
+    /**
+     * @description new game start, clears any previous board settings or boardInfo,
+     * sets timer to zero, sets stars to 5, adds correct event listeners
+     */
     function standardStart() {
-        // reset board state, remove event listener
         board.resetBoard();
         timerVal = 0;
         clearInterval(timer);
@@ -119,6 +139,10 @@ function load () {
         starCounter.innerHTML = starMap['5'];
     }
 
+    /**
+     * @description procedure shared by new game and load setup
+     * @param {object} boardInfo - containing data for version of board, timer, turns, stars
+     */
     function sharedSetup(boardInfo) {
         if (cardContainer.classList.contains('hidden')) {
             cardContainer.classList.remove('hidden');
@@ -126,7 +150,6 @@ function load () {
         if (statsPanel.classList.contains('hidden')) {
             statsPanel.classList.remove('hidden');
         }
-        winStatus = false;
         currentBoard = boardInfo;
         startRestartButton.innerText = 'Restart';
         saveLoadButton.innerText = 'Save';
@@ -138,26 +161,33 @@ function load () {
             cardContainer.innerHTML = '';
             cardContainer.appendChild(board.makeBoardElements());
         }
-
         cardContainer.addEventListener('click', clickHandler);
-        console.log(currentBoard);
     }
 
+    /**
+     * @description called if using localStorage, checks if there is a winHistory,
+     * if there is, makes average visible.
+     */
     function getAvgStars() {
         const winHistory = JSON.parse(localStorage.getItem('winHistory'));
         if (!winHistory) {
-            // if starHistory is empty or if it does not exist
             avgStars.classList.toggle('hidden');
         } else {
-            let total = 0;
+            let total = 0,
+                avg;
             winHistory.forEach(win => {
                 total += win.stars;
             });
-            let avg = total/winHistory.length;
-            avgStars.innerHTML = "Average Stars: " + starMap[Math.round(avg).toString()] + " (" + avg.toString().slice(0, 3) + ")";
+            avg = total/winHistory.length;
+            avgStars.innerHTML = "Average Stars: " + starMap[Math.round(avg).toString()]
+                + " (" + avg.toString().slice(0, 3) + ")";
         }
     }
 
+    /**
+     * @description used to remove the board, save the Board.boardInfo, stop the
+     * timer, save Board.boardInfo in localStorage.lastGame
+     */
     function saveGame() {
         cardContainer.classList.add('hidden');
         clearInterval(timer);
@@ -169,25 +199,32 @@ function load () {
         startRestartButton.innerText = 'New Game';
         saveLoadButton.removeEventListener('click', saveGame);
         saveLoadButton.addEventListener('click', loadPrevGame);
-        window.alert('Game Saved. Start a new game or load your saved game. Only one game may be saved at a time.');
+        window.alert('Game Saved. Start a new game or load your saved game.' +
+            'Only one game may be saved at a time.');
         cardSetName.innerText = '';
         cardContainer.innerHTML = '';
         boardSet = false;
     }
 
+    /**
+     * @description saves winObject into localStoarage game history, calls game win modal,
+     * removes event listeners from the board.
+     * @param {object} winObject - containing game data
+     */
     function win(winObject) {
-        console.log(winObject);
         // stop timer
         clearInterval(timer);
         if (useLocalStorage) {
             // clear saved game to avoid cheating and boosting score
             localStorage.removeItem('lastGame');
             let winHistory = localStorage.getItem('winHistory');
+            // if there is a game history, append
             if (winHistory) {
                 winHistory = JSON.parse(winHistory);
                 winHistory.push(winObject);
                 localStorage.setItem('winHistory', JSON.stringify(winHistory));
                 getAvgStars();
+            // if there is no game history, make one
             } else {
                 winHistory = [];
                 winHistory.push(winObject);
@@ -201,11 +238,14 @@ function load () {
         saveLoadButton.removeEventListener('click', saveGame);
         saveLoadButton.addEventListener('click', loadPrevGame);
         startRestartButton.innerText = 'New Game';
-        winStatus = true;
 
         getWinPopup(winObject);
     }
 
+    /**
+     * @description makes win modal visible and sets template values
+     * @param {object} winObject - containing game data
+     */
     function getWinPopup(winObject) {
         const turnStats = document.getElementById('js-modal-turns'),
             starStats = document.getElementById('js-modal-win-stars'),
@@ -225,7 +265,8 @@ function load () {
         winModal.classList.toggle('hidden');
     }
 
-    /** Starts game timer from whatever the value of timerVal is
+    /**
+     * @description Starts game timer from whatever the value of timerVal is
      * Sourced in part: http://jsfiddle.net/fc37nckg/
      */
     function startTimer() {
@@ -235,18 +276,33 @@ function load () {
         }, 1000);
     }
 
+    /**
+     * sets global timer
+     * @param {number} val - value of timer
+     */
     function setTimer(val) {
         timerVal = val;
     }
 }
 
+/**
+ * padding used in timer formatting.
+ * @param {string|number} val - value to pad
+ * @return {string} - padded value
+ */
 function pad(val) {
     return val > 9 ? val : "0" + val;
 }
 
+/**
+ * @description Utility method to convert from js variables
+ * @param {string} str - camelCaseString
+ * @return {string} - Camel Case String
+ */
 function camelCaseToNormal(str) {
     let init = str.replace(/([A-Z])/g, " $1");
     return init.charAt(0).toUpperCase() + init.slice(1);
 }
 
+// Fires load wrapper
 document.addEventListener('DOMContentLoaded', load);

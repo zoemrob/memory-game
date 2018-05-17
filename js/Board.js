@@ -1,4 +1,10 @@
 "use strict";
+
+/**
+ * @description representative of board state, supplies methods
+ * and properties to save or load board
+ * @constructor
+ */
 const Board = function () {
     this.emptyStar = 'fa-star-o';
     this.fullStar = 'fa-star';
@@ -72,6 +78,10 @@ const Board = function () {
     };
 };
 
+/**
+ * @description returns a compact object of current game state
+ * @return {{cards: (Array), turns: (number), timer: (number)}}
+ */
 Board.prototype.saveGameState = function () {
     return {
         cards: this.boardInfo,
@@ -80,15 +90,19 @@ Board.prototype.saveGameState = function () {
     };
 };
 
+/**
+ * @description creates a new board
+ * @return {Array} - board elements as objects
+ */
 Board.prototype.setNewBoardInfo = function () {
     this.setCardSet();
-
+    // sets the title of the board
     this.boardInfo[0] = this.cardSetName;
 
+    // creates unique ids based on card name
     this.cardSet.forEach(card => {
         let cardObj = {};
         let init = card.toLowerCase().replace(' ', '-');
-
         const first = 'js-' + init + '-1';
         const second = 'js-' + init + '-2';
 
@@ -99,10 +113,14 @@ Board.prototype.setNewBoardInfo = function () {
 
         this.boardInfo.push(cardObj);
     });
-    console.log(this.boardInfo);
     return this.boardInfo;
 };
 
+/**
+ * @description used when loaded a saved game
+ * @param {object} boardInfo - boardInfo object
+ * @return {Array} - array of boardInfo
+ */
 Board.prototype.setLastBoardInfo = function (boardInfo) {
     this.boardInfo = boardInfo.cards;
     this.turnCounter = boardInfo.turns;
@@ -110,32 +128,33 @@ Board.prototype.setLastBoardInfo = function (boardInfo) {
     return this.boardInfo;
 };
 
-Board.prototype.setCardSet = function (optSet = null) {
-    if (optSet) {
-        this.cardSetName = camelCaseToNormal(optSet);
-        this.cardSet = this.cardSets(optSet);
-    } else {
-        const setIndex = Math.floor(Math.random() * 5);
-        const set = this.cardSets.sets[setIndex];
-        this.cardSetName = camelCaseToNormal(set);
-        this.cardSet = this.cardSets[set];
-    }
+/**
+ * @description returns a random cardset, gets the cards
+ */
+Board.prototype.setCardSet = function () {
+    const setIndex = Math.floor(Math.random() * 5),
+        set = this.cardSets.sets[setIndex];
+
+    this.cardSetName = camelCaseToNormal(set);
+    this.cardSet = this.cardSets[set];
 };
 
+/**
+ * @description creates DOM elements from boardInfo
+ * @return {documentFragment} cardBoard - returns DOM elements
+ */
 Board.prototype.makeBoardElements = function () {
     const cardBoard = document.createDocumentFragment();
     let cards = this.boardInfo.slice(1),
         elements = [];
 
     cards.forEach(cardData => {
-        const matchedCheck = cardData['matched'] ? 'matched' : false;
-        const card1 = this.createCard(cardData['cardNameText'], cardData['id1'], matchedCheck);
-        const card2 = this.createCard(cardData['cardNameText'], cardData['id2'], matchedCheck);
+        const matchedCheck = cardData['matched'] ? 'matched' : false,
+            card1 = this.createCard(cardData['cardNameText'], cardData['id1'], matchedCheck),
+            card2 = this.createCard(cardData['cardNameText'], cardData['id2'], matchedCheck);
         elements.push(card1);
         elements.push(card2);
     });
-
-    console.log(elements);
 
     elements.forEach(element => {
         cardBoard.appendChild(element);
@@ -144,6 +163,9 @@ Board.prototype.makeBoardElements = function () {
     return this.shuffleBoard(this.shuffleBoard(cardBoard));
 };
 
+/**
+ * @description clears boardInfo and resets turns
+ */
 Board.prototype.resetBoard = function () {
     this.boardInfo = [];
     if (this.turnCounter > 0) {
@@ -152,6 +174,13 @@ Board.prototype.resetBoard = function () {
 
 };
 
+/**
+ * @description creates individual DOM nodes for a card
+ * @param {string} cardName
+ * @param {string} cardId - html id attribute
+ * @param {boolean} matched
+ * @return {HTMLDivElement} cardDiv - complete card DOM Node
+ */
 Board.prototype.createCard = function (cardName, cardId, matched = false) {
     const cardDiv = document.createElement('div'),
         name = document.createElement('h3');
@@ -175,33 +204,51 @@ Board.prototype.shuffleBoard = function (documentFrag) {
     return list;
 };
 
+/**
+ * @description if a valid click, fetches id attribute of card
+ * @param {MouseEvent} e - click event from game.js
+ * @return {string|boolean} id
+ */
 Board.prototype.getCardId = function (e) {
+    let id;
     if (this.clickCounter === 2) {
         e.stopPropagation();
         return false;
     }
-    let id;
     if (e.target.nodeName === 'H3') {
         id = e.target.parentElement.getAttribute('id');
     } else if (e.target.nodeName === 'DIV') {
         id = e.target.getAttribute('id');
+        // make sure it's not the background div
         id = id === 'js-card-container' ? false : id;
     }
     return id;
 };
 
+/**
+ * @description validates clicks, changes card state
+ * @param {string} id
+ * @return {boolean|object} cardChange - either false bool, or updated card
+ */
 Board.prototype.handleClicks = function (id) {
     let cardChange = false;
     this.boardInfo.forEach(card => {
+        // skip iteration if card isn't clicked card
         if (id === card.id1 || id === card.id2) {
+
+            // invalidate click if click was a matched card
             if (card.matched) { return false;}
+
+            // invalidate click if same card was clicked
             else if (this.firstClick === id) { return false; }
+            // valid click!
             else {
                 this.addClick();
                 if (this.clickCounter === 1) {
                     this.firstClick = id;
                     this.toggleOpen(id);
                 } else if (this.clickCounter === 2) {
+                    // increment turn every two valid clicks
                     this.addTurn();
                     this.secondClick = id;
                     cardChange = this.checkMatches();
@@ -212,12 +259,18 @@ Board.prototype.handleClicks = function (id) {
     return cardChange;
 };
 
+/**
+ * @description increment click counter
+ */
 Board.prototype.addClick = function () {
     if (this.clickCounter < 2) {
         this.clickCounter++;
     }
 };
 
+/**
+ * @description increment board turnCounter, update DOM turn counter
+ */
 Board.prototype.addTurn = function () {
     this.turnCounter++;
     const moveCounter = document.getElementById('js-moves');
@@ -225,15 +278,19 @@ Board.prototype.addTurn = function () {
     this.checkScore();
 };
 
+/**
+ * @description used for new game
+ */
 Board.prototype.resetTurns = function () {
     this.turnCounter = 0;
     this.starCounter = 5;
-    const moveCounter = document.getElementById('js-moves'),
-        starCounter = document.getElementById('js-stars');
+    const moveCounter = document.getElementById('js-moves');
     moveCounter.innerText = '';
-
 };
 
+/**
+ * Update board and DOM star count based on number of turns
+ */
 Board.prototype.checkScore = function () {
     const stars = document.getElementById('js-stars');
     switch (this.turnCounter) {
@@ -260,14 +317,20 @@ Board.prototype.checkScore = function () {
     }
 };
 
-// returns card obj if not already matched, else returns false
+/**
+ * @description returns card object if matching elements were clicked,
+ * send Board.incorrectGuess to set timeout if incorrect guess
+ * @return {boolean|object} matchedCard
+ */
 Board.prototype.checkMatches = function () {
     if (this.firstClick.slice(0, -1) === this.secondClick.slice(0, -1)) {
-        let matchedCard = false;
+        let matchedCard;
         this.boardInfo.forEach(card => {
+            // skip already matched cards
             if (card.matched) { return false; }
             else {
                 if (card.id1 === this.firstClick || card.id1 === this.secondClick) {
+                    // remove "open" class from first clicked card
                     this.toggleOpen(this.firstClick);
                     card.matched = true;
                     matchedCard = card;
@@ -281,6 +344,7 @@ Board.prototype.checkMatches = function () {
         return matchedCard;
     } else {
         this.toggleOpen(this.secondClick);
+        // pass context so that Board.incorrectGuess() is not exec on Window in 1.5 secs
         let that = this;
         setTimeout(function() {
             Board.prototype.incorrectGuess(that);
@@ -289,7 +353,7 @@ Board.prototype.checkMatches = function () {
 };
 
 /**
- * Toggles 'open' on incorrectly guessed cards
+ * @description Toggles 'open' on incorrectly guessed cards, resets click properties
  * @param that context of instanced Board, for setTimeout
  */
 Board.prototype.incorrectGuess = function (that) {
@@ -300,6 +364,10 @@ Board.prototype.incorrectGuess = function (that) {
     that.secondClick = null;
 };
 
+/**
+ * @description adds 'open' class to passed in element id
+ * @param {string} element - html id attribute
+ */
 Board.prototype.toggleOpen = function (element) {
     const open = document.getElementById(element);
     if (open) {
@@ -307,6 +375,11 @@ Board.prototype.toggleOpen = function (element) {
     }
 };
 
+/**
+ * @description verifies passed in card object matches board state,
+ * updates DOM based on matches or open
+ * @param {object} card
+ */
 Board.prototype.updateBoard = function(card) {
     const card1 = document.getElementById(card.id1),
         card2 = document.getElementById(card.id2);
@@ -331,10 +404,18 @@ Board.prototype.updateBoard = function(card) {
 
 };
 
+/**
+ * @description sets value of timer
+ * @param {number} val
+ */
 Board.prototype.setTimer = function(val) {
     this.timer = val;
 };
 
+/**
+ * @description checks if all of the cards are matched
+ * @return {object} winObject - contains win stats
+ */
 Board.prototype.checkWin = function () {
     let matchedCount = 0,
         win = 8;
